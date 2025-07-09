@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy via CodeDeploy
+    name: Deploy CodeDeploy
     runs-on: ubuntu-latest
 
     steps:
