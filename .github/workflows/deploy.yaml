@@ -49,7 +49,7 @@ jobs:
 
       - name: Zip for CodeDeploy
         run: |
-          zip deploy.zip app.env docker-compose.yml
+          zip deploy.zip app.env docker-compose.yaml
 
       - name: Upload to S3
         run: |
