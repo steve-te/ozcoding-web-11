@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /home/ec2-user/flask/flask
+cd /home/ec2-user/flask
 # source venv/bin/activate
 
 # pkill -f "python3 run.py" || true
