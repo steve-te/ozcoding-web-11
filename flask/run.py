@@ -5,4 +5,5 @@ app = create_app()
 
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)  # 테이블 생성
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -15,16 +15,45 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Zip source files
-        run: zip -r deploy.zip . -x '*.git*'
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_DEPLOY_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_DEPLOY_ACCESS_SECRET }}
+          aws-region: ap-northeast-2
+
+      - name: Generate app.env from secrets
+        run: |
+          mkdir -p secrets
+          cat <<EOF > app.env
+          MYSQL_HOST=${{ secrets.MYSQL_HOST }}
+          MYSQL_PORT=${{ secrets.MYSQL_PORT }}
+          MYSQL_USER=${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_DB=${{ secrets.MYSQL_DB }}
+          EOF
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
+        run: |
+          IMAGE_URI=807091918015.dkr.ecr.ap-northeast-2.amazonaws.com/oz/flask:latest
+          docker build -t $IMAGE_URI .
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+
+      - name: Push to Amazon ECR
+        run: |
+          docker push $IMAGE_URI
+
+      - name: Zip for CodeDeploy
+        run: |
+          zip deploy.zip app.env docker-compose.yml
 
       - name: Upload to S3
         run: |
-          aws s3 cp deploy.zip s3://deploy-resource-01/deploy.zip
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_DEPLOY_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_DEPLOY_ACCESS_SECRET }}
-          # AWS_REGION: ap-northeast-2
+          aws s3 cp deploy.zip s3://deploy-resource-01/deploy.zip --region ap-northeast-2
 
       - name: Trigger CodeDeploy
         run: |
@@ -33,7 +62,3 @@ jobs:
             --deployment-group-name flask-deploy-group \
             --s3-location bucket=deploy-resource-01,bundleType=zip,key=deploy.zip \
             --file-exists-behavior OVERWRITE
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_DEPLOY_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_DEPLOY_ACCESS_SECRET }}
-          AWS_REGION: ap-northeast-2

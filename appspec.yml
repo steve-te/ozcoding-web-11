@@ -5,11 +5,15 @@ files:
     destination: /home/ec2-user/flask
 
 hooks:
+  # AfterInstall:
+  #   - location: flask/scripts/install.sh
+  #     timeout: 300
+  #     runas: root
+  # ApplicationStart:
+  #   - location: flask/scripts/start.sh
+  #     timeout: 300
+  #     runas: root
   AfterInstall:
-    - location: flask/scripts/install.sh
-      timeout: 300
-      runas: root
-  ApplicationStart:
-    - location: flask/scripts/start.sh
-      timeout: 300
-      runas: root
+    - location: scripts/start.sh
+      timeout: 60
+      runas: ec2-user

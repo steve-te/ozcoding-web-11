@@ -1,19 +1,14 @@
-# version: '3.8'
-
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql-db
-    restart: always
+  app:
+    build: .
+    container_name: myapp
+    networks:
+      - shared-net
     ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: content_db
-      MYSQL_USER: content_user
-      MYSQL_PASSWORD: content_pass
-    volumes:
-      - mysql_data:/var/lib/mysql
+      - "5001:5000"
+    env_file:
+      - app.env
 
-volumes:
-  mysql_data:
+networks:
+  shared-net:
+    external: true
