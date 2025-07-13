@@ -1,5 +1,6 @@
 services:
   app:
+    image: 807091918015.dkr.ecr.ap-northeast-2.amazonaws.com/oz/flask:latest
     build: .
     container_name: myapp
     networks:
